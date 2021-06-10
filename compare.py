@@ -27,3 +27,59 @@ def compare_mean(mean1,mean2,threshold = 0.8):
     else:
         return False
 
+
+
+def grid_slice_img(img):
+    slices = []
+    x_grid = ceil(img.shape[0]/6)
+    y_grid = ceil(img.shape[1]/6)
+    for r in range(0,img.shape[0],x_grid):
+        for c in range(0,img.shape[1],y_grid):
+            sliced = img[r:r+x_grid, c:c+y_grid,:]
+            slices.append(sliced)
+    return slices
+
+
+def get_mean_grid(img):
+    slices = grid_slice_img(img)
+    means = []
+    for s in slices:
+        mean = get_mean(s)
+        means.append(mean)
+    return means
+def get_hist_grid(img):
+    slices = grid_slice_img(img)
+    hists = []
+    for s in slices:
+        hist = get_hist(s)
+        hists.append(hist)
+    return hists
+
+
+def compare_mean_grid(means1,means2):
+    matching = 0
+    unmatching = 0
+    for m1,m2 in zip(means1,means2):
+        if (compare_mean(m1,m2)):
+            matching +=1
+        else:
+            unmatching +=1
+    score = int(matching/(matching+unmatching)*100)
+    if score >= 90:
+        return True
+    else:
+        return False
+
+def compare_hist_grid(hists1,hists2):
+    matching = 0
+    unmatching = 0
+    for h1,h2 in zip(hists1,hists2):
+        if (compare_hist(h1,h2)):
+            matching +=1
+        else:
+            unmatching +=1
+    score = int(matching/(matching+unmatching)*100)
+    if score >= 90:
+        return True
+    else:
+        return False
