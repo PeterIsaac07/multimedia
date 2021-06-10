@@ -124,6 +124,9 @@ def get_hist(img):
 def get_mean(img):
     mean = np.mean(img, axis=(0, 1))
     return mean
+
+
+#used to compare videos , pass the url of the video
 def compare_video(URL,threshold_key_frame = 1):
     result = []
     retrieve_video = retrieve_videos()
@@ -145,6 +148,9 @@ def compare_hist(hist1,hist2,threshold = 0.7):
      else:
          return False
 
+
+
+#used to compare videos , pass the url of the image
 def compare_mean(mean1,mean2,threshold = 0.8):
     mean = (mean1+mean2)/(2*mean1)
     s = np.sum(mean)/3
@@ -153,6 +159,8 @@ def compare_mean(mean1,mean2,threshold = 0.8):
     else:
         return False
 
+
+#used to compare videos , pass the url of the image
 def compare_img_hist(img):
     hist = get_hist(img)
     retrieve_image = retrieve_images()
