@@ -5,7 +5,7 @@ import cv2
 import matplotlib.pyplot as plt
 import pylab as pl
 from IPython import display
-threshold_key_frame = 1
+#threshold_key_frame = 1
 
 db = MySQLdb.connect(host="localhost",   # your host, usually localhost
                      user="root",        # your username
@@ -85,7 +85,13 @@ def saving_video(URL,key_frame,buf_feature):
     cur.execute(SQLstatement,data)
     db.commit()
 
-
+def saving_image(URL,hist,mean):
+    saved_hist = cPickle.dumps(hist)
+    saved_mean = cPickle.dumps(mean)
+    data = (URL,saved_hist,saved_mean)
+    SQLstatement = "INSERT INTO image (img_ref,hist,mean) VALUES (%s,%s,%s)"
+    cur.execute(SQLstatement, data)
+    db.commit()
 def retrieve_videos ():
     result = []
     cur.execute("SELECT * FROM video")
@@ -96,11 +102,34 @@ def retrieve_videos ():
         temp2 = cPickle.loads(retrieved[i][2])
         result.append([retrieved[i][0],temp1,temp2])
     return result
+def retrieve_images():
+    retrieved_data = []
+    SQLstatement = "SELECT * FROM image"
+    cur.execute(SQLstatement)
+    ret = cur.fetchall()
 
+    for i in range(len(ret)):
+        retrieved_hist = cPickle.loads(ret[i][1])
+        retrieved_mean = cPickle.loads(ret[i][2])
+        retrieved_data.append([ret[i][0],retrieved_hist,retrieved_mean])
 
-def compare(key1):
+    return retrieved_data
+def get_hist(img):
+    hist_b = cv2.calcHist([img],[0],None,[256],[0,256])
+    hist_g = cv2.calcHist([img],[1],None,[256],[0,256])
+    hist_r = cv2.calcHist([img],[2],None,[256],[0,256])
+    hist = np.stack((np.squeeze(hist_r),np.squeeze(hist_g),np.squeeze(hist_b)),axis = 1)
+    return hist
+
+def get_mean(img):
+    mean = np.mean(img, axis=(0, 1))
+    return mean
+def compare_video(URL,threshold_key_frame = 1):
     result = []
     retrieve_video = retrieve_videos()
+    buf1 = capture(URL)
+    buf_feature1 = get_feature_vector(buf1)
+    key1 = get_key_frames(buf1, buf_feature1, threshold_key_frame)
     for i in range(len(retrieve_video)):
         flag = is_similar(key1, retrieve_video[i][2], 0.5, 1)
         if  flag == True :
@@ -108,22 +137,78 @@ def compare(key1):
     return result
 
 
+def compare_hist(hist1,hist2,threshold = 0.7):
+     m = np.minimum(hist1,hist2)/np.sum(hist2)
+     s = np.sum(m)
+     if s > threshold:#similair
+         return True
+     else:
+         return False
+
+def compare_mean(mean1,mean2,threshold = 0.8):
+    mean = (mean1+mean2)/(2*mean1)
+    s = np.sum(mean)/3
+    if s > threshold:#similair
+        return True
+    else:
+        return False
+
+def compare_img_hist(img):
+    hist = get_hist(img)
+    retrieve_image = retrieve_images()
+    result = []
+    for i in range(len(retrieve_image)):
+        flag = compare_hist(hist,retrieve_image[i][1])
+        if  flag == True :
+            result.append(retrieve_image[i][0])
+    return result
+
+
+def compare_img_mean(img):
+    mean = get_mean(img)
+    retrieve_image = retrieve_images()
+    result = []
+    for i in range(len(retrieve_image)):
+        flag = compare_mean(mean,retrieve_image[i][2])
+        if  flag == True :
+            result.append(retrieve_image[i][0])
+    return result
 
 
 
 
 
 path1 = 'C:/Users/PI/PycharmProjects/new/video2.mp4'
-buf1 = capture(path1)
-buf_feature1 = get_feature_vector(buf1)
-key_f1 = get_key_frames(buf1,buf_feature1,threshold_key_frame)
+#buf1 = capture(path1)
+#buf_feature1 = get_feature_vector(buf1)
+#key_f1 = get_key_frames(buf1,buf_feature1,threshold_key_frame)
+urls = compare_video(path1)
+print(urls)
+######################################################################
 
+#img1 = cv2.imread('test.jpg')
+
+#print(compare_img_mean(img1))
+
+
+
+
+
+
+
+
+
+
+
+#saving_image('rec.jpg', get_hist(img1), get_mean(img1))
+#saving_image('later.jpg', get_hist(img2), get_mean(img2))
+
+#saving_image('new.jpg', get_hist(img3), get_mean(img3))
 
 
 #result = retrieve_videos()
 #saving_video(path1,key_f1,buf_feature1)
 
-urls = compare(key_f1)
 
-print(urls)
+#print(urls)
 
