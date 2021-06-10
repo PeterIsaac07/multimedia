@@ -11,9 +11,7 @@ def get_mean(img):
     mean = np.mean(img, axis=(0, 1))
     return mean
 
-def compare_hist(img1,img2,threshold = 0.7):
-    hist1 = get_hist(img1)
-    hist2 = get_hist(img2)
+def compare_hist(hist1,hist2,threshold = 0.7):
     m = np.minimum(hist1,hist2)/np.sum(hist2)
     s = np.sum(m)
     if s > threshold:#similair
@@ -21,9 +19,7 @@ def compare_hist(img1,img2,threshold = 0.7):
     else:
         return False
 
-def compare_mean(img1,img2,threshold = 0.8):
-    mean1 = get_mean(img1)
-    mean2 = get_mean(img2)
+def compare_mean(mean1,mean2,threshold = 0.8):
     mean = (mean1+mean2)/(2*mean1)
     s = np.sum(mean)/3
     if s > threshold:#similair
