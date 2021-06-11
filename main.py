@@ -79,16 +79,27 @@ def is_similar(key_f_input, key_f_existing,threshold_match, threshold_compare): 
         match_flag = True
     return match_flag
 
+#call this function to save video
 
-def saving_video(URL,key_frame,buf_feature):
+def saving_video(URL,threshold_key_frame=1):
+    buf1 = capture(URL)
+    buf_feature1 = get_feature_vector(buf1)
+    key_frame = get_key_frames(buf1,buf_feature1,threshold_key_frame)
+
     picklekey = cPickle.dumps(key_frame)
-    picklebuffer = cPickle.dumps(buf_feature)
+    picklebuffer = cPickle.dumps(buf_feature1)
     data = (URL, picklebuffer, picklekey)
     SQLstatement = "insert into Video (video_ref , mean , keyframes ) values (%s, %s,%s)"
     cur.execute(SQLstatement,data)
     db.commit()
 
-def saving_image(URL,hist,mean,grid_hist):
+
+#call this function to save image
+def saving_image(URL):
+    img = cv2.imread(URL)
+    hist = get_hist(img)
+    mean = get_mean(img)
+    grid_hist = get_hist_grid(img)
     saved_hist = cPickle.dumps(hist)
     saved_mean = cPickle.dumps(mean)
     saved_grid_hist = cPickle.dumps(grid_hist)
@@ -240,36 +251,6 @@ def compare_grid_hist(img):
     return result
 
 
-#path1 = 'C:/Users/PI/PycharmProjects/new/video2.mp4'
-#buf1 = capture(path1)
-#buf_feature1 = get_feature_vector(buf1)
-#key_f1 = get_key_frames(buf1,buf_feature1,threshold_key_frame)
-#urls = compare_video(path1)
-#print(urls)
-######################################################################
-
-#img1 = cv2.imread('white.png')
-
-#print(compare_img_mean(img1))
 
 
-
-
-
-
-
-#print(compare_grid_hist(img1))
-
-
-#saving_image('white.png', get_hist(img1), get_mean(img1),get_hist_grid(img1))
-#saving_image('later.jpg', get_hist(img2), get_mean(img2))
-
-#saving_image('new.jpg', get_hist(img3), get_mean(img3))
-
-
-#result = retrieve_videos()
-#saving_video(path1,key_f1,buf_feature1)
-
-
-#print(urls)
 
