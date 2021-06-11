@@ -47,6 +47,8 @@ def get_mean_grid(img):
         mean = get_mean(s)
         means.append(mean)
     return means
+
+# 1
 def get_hist_grid(img):
     slices = grid_slice_img(img)
     hists = []

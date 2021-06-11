@@ -5,6 +5,7 @@ import cv2
 import matplotlib.pyplot as plt
 import pylab as pl
 from IPython import display
+
 #threshold_key_frame = 1
 
 db = MySQLdb.connect(host="localhost",   # your host, usually localhost
