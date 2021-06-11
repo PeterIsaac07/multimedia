@@ -98,11 +98,16 @@ class GridApp:
             self.w.itemconfig(cell, fill=UNFILLED)
 
 
-def Video_InputWindow():
-    input_file = filedialog.askopenfile(title='Please Select the Video to be searched on',
+def Video_InputWindow(mode):
+    input_file = filedialog.askopenfile(title='Please Select Video',
                                         filetypes=[("Videos", ".mp4")])
 
     if input_file is None:
+        root.deiconify()
+        return
+
+    if "Add" in mode:
+        algo.saving_video(input_file.name)
         root.deiconify()
         return
 
@@ -114,13 +119,17 @@ def Video_InputWindow():
 
 
 def Image_InputWindow(mode):
-    input_file = filedialog.askopenfile(title='Please Select the Image to be searched on',
+    input_file = filedialog.askopenfile(title='Please Select Image',
                                         filetypes=[("Image", ".jpg"), ("Image", ".png"), ("Image", ".jpeg")])
 
     if input_file is None:
         root.deiconify()
         return
-    if "Histogram" in mode:
+    if "Add" in mode:
+        algo.saving_image(input_file.name)
+        root.deiconify()
+        return
+    elif "Histogram" in mode:
         '''
         call the image retrieval function based on histogram
         '''
@@ -143,7 +152,7 @@ def Output(out_list):
     wl = Label(output_root, text="__Select Output to View__\n . . . . .")
     entry_mod = Label(output_root, text="Content Base Retrieval OutPut :")
     mode = Combobox(output_root, justify='center', value=out_list, state='readonly')
-    #mode.current(0)
+    # mode.current(0)
 
     Nex = Button(output_root, text="VIEW",
                  command=lambda: [output_root.withdraw(),
@@ -197,14 +206,14 @@ def Layout_InputWindow():
     def ColorLayout_retrieve(color_list):
         # call the retrieve function
         im = np.array(color_list)
-        #im = im.reshape((6, 6, 3))
+        # im = im.reshape((6, 6, 3))
         im = im.astype(np.uint8)
         im = Image.fromarray(im.reshape((6, 6, 3)))
         im = im.resize((600, 600))
         im = np.array(im)
-        #im = im.resize(512,512)
-        #plt.imshow(im)
-        #plt.show()
+        # im = im.resize(512,512)
+        # plt.imshow(im)
+        # plt.show()
 
         out_list = algo.compare_grid_hist(im)
         # call the output
@@ -213,7 +222,8 @@ def Layout_InputWindow():
 
 root = Tk()
 root.title('MAIN MENU')
-types = ["CBVR", "CBIR using Mean Color", "CBIR using Histogram", "CBIR using Color Layout"]
+types = ["CBVR", "CBIR using Mean Color", "CBIR using Histogram", "CBIR using Color Layout", "Add Image to DB",
+         "Add Video to DB"]
 
 wlc = Label(root, text="______WELCOME______\n . . . . .")
 entry_mode = Label(root, text="Content Base Retrieval Mode :")
@@ -221,14 +231,22 @@ modes = Combobox(root, justify='center', value=types, state='readonly')
 modes.current(0)
 
 Next = Button(root, text="NEXT",
-              command=lambda: [root.withdraw(),
-                               Video_InputWindow() if "CBVR" in modes.get() else Layout_InputWindow() if "Layout" in modes.get() else Image_InputWindow(
-                                   modes.get())])
+              command=lambda: [root.withdraw(), Next_Window(modes.get())])
 wlc.grid(row=0, columnspan=3, pady=15)
 
 entry_mode.grid(row=1, padx=10, sticky=W, pady=10)
 modes.grid(row=1, column=1, columnspan=2, padx=10, sticky=W, pady=10)
 
 Next.grid(row=4, columnspan=3, pady=15)
+
+
+def Next_Window(mode):
+    if "CBVR" in mode or "Video" in mode:
+        Video_InputWindow(mode)
+    elif "Layout" in mode:
+        Layout_InputWindow()
+    else:
+        Image_InputWindow(mode)
+
 
 root.mainloop()
