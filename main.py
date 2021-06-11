@@ -5,6 +5,8 @@ import cv2
 import matplotlib.pyplot as plt
 import pylab as pl
 from IPython import display
+import math
+
 
 #threshold_key_frame = 1
 
@@ -86,11 +88,12 @@ def saving_video(URL,key_frame,buf_feature):
     cur.execute(SQLstatement,data)
     db.commit()
 
-def saving_image(URL,hist,mean):
+def saving_image(URL,hist,mean,grid_hist):
     saved_hist = cPickle.dumps(hist)
     saved_mean = cPickle.dumps(mean)
-    data = (URL,saved_hist,saved_mean)
-    SQLstatement = "INSERT INTO image (img_ref,hist,mean) VALUES (%s,%s,%s)"
+    saved_grid_hist = cPickle.dumps(grid_hist)
+    data = (URL,saved_hist,saved_mean,saved_grid_hist)
+    SQLstatement = "INSERT INTO image (img_ref,hist,mean,grid_hist) VALUES (%s,%s,%s,%s)"
     cur.execute(SQLstatement, data)
     db.commit()
 def retrieve_videos ():
@@ -112,7 +115,8 @@ def retrieve_images():
     for i in range(len(ret)):
         retrieved_hist = cPickle.loads(ret[i][1])
         retrieved_mean = cPickle.loads(ret[i][2])
-        retrieved_data.append([ret[i][0],retrieved_hist,retrieved_mean])
+        retrieved_grid_hist = cPickle.loads(ret[i][3])
+        retrieved_data.append([ret[i][0],retrieved_hist,retrieved_mean,retrieved_grid_hist])
 
     return retrieved_data
 def get_hist(img):
@@ -163,6 +167,8 @@ def compare_mean(mean1,mean2,threshold = 0.8):
 
 #used to compare videos , pass the url of the image
 def compare_img_hist(img):
+    img = cv2.imread(img)
+
     hist = get_hist(img)
     retrieve_image = retrieve_images()
     result = []
@@ -174,6 +180,7 @@ def compare_img_hist(img):
 
 
 def compare_img_mean(img):
+    img = cv2.imread(img)
     mean = get_mean(img)
     retrieve_image = retrieve_images()
     result = []
@@ -184,18 +191,64 @@ def compare_img_mean(img):
     return result
 
 
+def grid_slice_img(img):
+    slices = []
+    x_grid =math.ceil(img.shape[0]/6)
+    y_grid = math.ceil(img.shape[1]/6)
+    for r in range(0,img.shape[0],x_grid):
+        for c in range(0,img.shape[1],y_grid):
+            sliced = img[r:r+x_grid, c:c+y_grid,:]
+            slices.append(sliced)
+    return slices
 
 
 
-path1 = 'C:/Users/PI/PycharmProjects/new/video2.mp4'
+def get_hist_grid(img):
+    slices = grid_slice_img(img)
+    hists = []
+    for s in slices:
+        hist = get_hist(s)
+        hists.append(hist)
+    return hists
+
+
+
+
+
+def compare_hist_grid(hists1,hists2):
+    matching = 0
+    unmatching = 0
+    for h1,h2 in zip(hists1,hists2):
+        if (compare_hist(h1,h2)):
+            matching +=1
+        else:
+            unmatching +=1
+    score = int(matching/(matching+unmatching)*100)
+    if score >= 90:
+        return True
+    else:
+        return False
+
+def compare_grid_hist(img):
+    test = get_hist_grid(img)
+    retrieve_image = retrieve_images()
+    result = []
+    for i in range(len(retrieve_image)):
+        flag = compare_hist_grid(test, retrieve_image[i][3])
+        if flag == True:
+            result.append(retrieve_image[i][0])
+    return result
+
+
+#path1 = 'C:/Users/PI/PycharmProjects/new/video2.mp4'
 #buf1 = capture(path1)
 #buf_feature1 = get_feature_vector(buf1)
 #key_f1 = get_key_frames(buf1,buf_feature1,threshold_key_frame)
-urls = compare_video(path1)
-print(urls)
+#urls = compare_video(path1)
+#print(urls)
 ######################################################################
 
-#img1 = cv2.imread('test.jpg')
+#img1 = cv2.imread('white.png')
 
 #print(compare_img_mean(img1))
 
@@ -205,11 +258,10 @@ print(urls)
 
 
 
+#print(compare_grid_hist(img1))
 
 
-
-
-#saving_image('rec.jpg', get_hist(img1), get_mean(img1))
+#saving_image('white.png', get_hist(img1), get_mean(img1),get_hist_grid(img1))
 #saving_image('later.jpg', get_hist(img2), get_mean(img2))
 
 #saving_image('new.jpg', get_hist(img3), get_mean(img3))

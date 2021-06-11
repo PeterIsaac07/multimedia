@@ -129,7 +129,7 @@ def Image_InputWindow(mode):
         '''
         call the image retrieval function based on Mean color
         '''
-        out_list = algo.compare_mean(input_file.name)
+        out_list = algo.compare_img_mean(input_file.name)
         pass
 
     Output(out_list)
@@ -143,7 +143,7 @@ def Output(out_list):
     wl = Label(output_root, text="__Select Output to View__\n . . . . .")
     entry_mod = Label(output_root, text="Content Base Retrieval OutPut :")
     mode = Combobox(output_root, justify='center', value=out_list, state='readonly')
-    mode.current(0)
+    #mode.current(0)
 
     Nex = Button(output_root, text="VIEW",
                  command=lambda: [output_root.withdraw(),
@@ -197,10 +197,14 @@ def Layout_InputWindow():
     def ColorLayout_retrieve(color_list):
         # call the retrieve function
         im = np.array(color_list)
-        im = im.reshape((6, 6, 3))
-
-        plt.imshow(im)
-        plt.show()
+        #im = im.reshape((6, 6, 3))
+        im = im.astype(np.uint8)
+        im = Image.fromarray(im.reshape((6, 6, 3)))
+        im = im.resize((600, 600))
+        im = np.array(im)
+        #im = im.resize(512,512)
+        #plt.imshow(im)
+        #plt.show()
 
         out_list = algo.compare_grid_hist(im)
         # call the output
