@@ -253,7 +253,7 @@ entry_mode = Label(root, text="Content Base Retrieval Mode :")
 modes = Combobox(root, justify='center', value=types, state='readonly')
 modes.current(0)
 check_input = IntVar()
-c = Checkbutton(root, text = "Allow SAVING Query Image/Video in DB", variable=check_input)
+c = Checkbutton(root, text = "Allow SAVING Query Image/Video in DB", variable=check_input,onvalue=1, offvalue=0)
 
 
 Next = Button(root, text="NEXT",
