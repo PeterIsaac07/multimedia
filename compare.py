@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+
 def get_hist(img):
     hist_b = cv2.calcHist([img],[0],None,[256],[0,256])
     hist_g = cv2.calcHist([img],[1],None,[256],[0,256])
@@ -11,23 +12,22 @@ def get_mean(img):
     mean = np.mean(img, axis=(0, 1))
     return mean
 
-def compare_hist(hist1,hist2,threshold = 0.7):
-    m = np.minimum(hist1,hist2)/np.sum(hist2)
+def compare_hist(hist1,hist2,threshold = 0.7,factor = 1):
+    m = np.minimum(hist1,hist2)*factor/np.sum(hist2)
     s = np.sum(m)
     if s > threshold:#similair
         return True
     else:
         return False
 
-def compare_mean(mean1,mean2,threshold = 0.8):
-    mean = (mean1+mean2)/(2*mean1)
-    s = np.sum(mean)/3
-    if s > threshold:#similair
+def compare_mean(mean1,mean2,threshold = 1.2,factor = 1):
+    mean = (mean1-mean2)*factor/mean1
+    mean = np.abs(mean)
+    s = np.sum(mean)
+    if s < threshold:#similair
         return True
     else:
         return False
-
-
 
 def grid_slice_img(img):
     slices = []
@@ -39,7 +39,6 @@ def grid_slice_img(img):
             slices.append(sliced)
     return slices
 
-
 def get_mean_grid(img):
     slices = grid_slice_img(img)
     means = []
@@ -47,8 +46,6 @@ def get_mean_grid(img):
         mean = get_mean(s)
         means.append(mean)
     return means
-
-# 1
 def get_hist_grid(img):
     slices = grid_slice_img(img)
     hists = []
@@ -57,17 +54,16 @@ def get_hist_grid(img):
         hists.append(hist)
     return hists
 
-
 def compare_mean_grid(means1,means2):
     matching = 0
     unmatching = 0
     for m1,m2 in zip(means1,means2):
-        if (compare_mean(m1,m2)):
+        if (compare_mean(m1,m2,threshold=1.5)):
             matching +=1
         else:
             unmatching +=1
     score = int(matching/(matching+unmatching)*100)
-    if score >= 90:
+    if score >= 80:
         return True
     else:
         return False
@@ -76,7 +72,7 @@ def compare_hist_grid(hists1,hists2):
     matching = 0
     unmatching = 0
     for h1,h2 in zip(hists1,hists2):
-        if (compare_hist(h1,h2)):
+        if (compare_hist(h1,h2,threshold = 0.7,factor = 1000)):
             matching +=1
         else:
             unmatching +=1
