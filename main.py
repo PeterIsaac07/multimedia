@@ -97,14 +97,19 @@ def saving_video(URL,threshold_key_frame=1):
 #call this function to save image
 def saving_image(URL):
     img = cv2.imread(URL)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     hist = get_hist(img)
     mean = get_mean(img)
     grid_hist = get_hist_grid(img)
+    grid_mean = get_mean_grid(img)
+
     saved_hist = cPickle.dumps(hist)
     saved_mean = cPickle.dumps(mean)
     saved_grid_hist = cPickle.dumps(grid_hist)
-    data = (URL,saved_hist,saved_mean,saved_grid_hist)
-    SQLstatement = "INSERT INTO image (img_ref,hist,mean,grid_hist) VALUES (%s,%s,%s,%s)"
+    saved_grid_mean = cPickle.dumps(grid_mean)
+
+    data = (URL,saved_hist,saved_mean,saved_grid_hist,saved_grid_mean)
+    SQLstatement = "INSERT INTO image (img_ref,hist,mean,grid_hist,grid_mean) VALUES (%s,%s,%s,%s,%s)"
     cur.execute(SQLstatement, data)
     db.commit()
 def retrieve_videos ():
@@ -153,6 +158,7 @@ def compare_video(URL,threshold_key_frame = 1):
 #used to compare videos , pass the url of the image
 def compare_img_hist(img):
     img = cv2.imread(img)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
     hist = get_hist(img)
     retrieve_image = retrieve_images()
@@ -166,6 +172,7 @@ def compare_img_hist(img):
 
 def compare_img_mean(img):
     img = cv2.imread(img)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     mean = get_mean(img)
     retrieve_image = retrieve_images()
     result = []
@@ -187,6 +194,16 @@ def compare_grid_hist(img):
     result = []
     for i in range(len(retrieve_image)):
         flag = compare_hist_grid(test, retrieve_image[i][3])
+        if flag == True:
+            result.append(retrieve_image[i][0])
+    return result
+
+def compare_grid_mean(img):
+    test = get_mean_grid(img)
+    retrieve_image = retrieve_images()
+    result = []
+    for i in range(len(retrieve_image)):
+        flag = compare_mean_grid(test, retrieve_image[i][4])
         if flag == True:
             result.append(retrieve_image[i][0])
     return result
