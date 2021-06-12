@@ -11,6 +11,7 @@ from PIL import ImageTk, Image
 import main as algo
 import PIL
 import cv2
+
 UNFILLED = "white"
 
 
@@ -127,9 +128,13 @@ def Video_InputWindow(mode, s_flag):
     # Call l function beta3et l video retrieval
     output_list = algo.compare_video(input_file.name)
 
-    #if s_flag:
+    # if s_flag:
     algo.saving_video(input_file.name)
     Alert_Message("___Query Video SAVED in DB___\n", None)
+
+    if len(output_list) == 0:
+        Alert_Message("___NO Video close to the Query one found in DB___\n", root)
+        return
 
     # call ll output
     Output(output_list)
@@ -139,8 +144,6 @@ def Image_InputWindow(mode, s_flag):
     input_file = filedialog.askopenfile(title='Please Select Image',
                                         filetypes=[("Image", ".jpg"), ("Image", ".png"), ("Image", ".jpeg")])
 
-
-
     if input_file is None:
         root.deiconify()
         return
@@ -148,6 +151,11 @@ def Image_InputWindow(mode, s_flag):
         algo.saving_image(input_file.name)
         Alert_Message("___Image Added SUCCESSFULLY in DB___\n", root)
         return
+    elif "GRIDDED Histogram" in mode:
+        '''
+        call gridded histogram here
+        '''
+        pass
     elif "Histogram" in mode:
         '''
         call the image retrieval function based on histogram
@@ -160,9 +168,13 @@ def Image_InputWindow(mode, s_flag):
         out_list = algo.compare_img_mean(input_file.name)
 
     print(s_flag)
-    #if s_flag == 1:
+    # if s_flag == 1:
     algo.saving_image(input_file.name)
     Alert_Message("___Query Image SAVED in DB___\n", None)
+
+    if len(out_list) == 0:
+        Alert_Message("___NO Image close to the Query one found in DB___\n", root)
+        return
 
     Output(out_list)
 
@@ -212,7 +224,7 @@ def view_image(url, parent):
     imag = Label(url, image=img)
 
 
-def Layout_InputWindow():
+def Layout_InputWindow(mode):
     input_root = Tk()
     input_root.title("INPUT WINDOW")
     input_root.protocol("WM_DELETE_WINDOW", lambda: [input_root.destroy(), root.deiconify()])
@@ -237,14 +249,28 @@ def Layout_InputWindow():
 
         im = np.array(im)
 
-        out_list = algo.compare_grid_hist(im)
+        if "Histogram" in mode:
+            out_list = algo.compare_grid_hist(im)
+        else:
+            out_list = algo.compare_grid_mean(im)
         # call the output
+
+        if len(out_list) == 0:
+            Alert_Message("___NO Image close to the Layout found in DB___\n", root)
+            return
+
         Output(out_list)
 
 
 root = Tk()
 root.title('MAIN MENU')
-types = ["CBVR", "CBIR using Mean Color", "CBIR using Histogram", "CBIR using Color Layout", "Add Image to DB",
+types = ["CBVR",
+         "CBIR using Mean Color",
+         "CBIR using Histogram",
+         "CBIR using GRIDDED Histogram",
+         "CBIR using Color Layout & Histogram",
+         "CBIR using Color Layout & Mean Color",
+         "Add Image to DB",
          "Add Video to DB"]
 
 wlc = Label(root, text="______WELCOME______\n . . . . .")
@@ -252,8 +278,7 @@ entry_mode = Label(root, text="Content Base Retrieval Mode :")
 modes = Combobox(root, justify='center', value=types, state='readonly')
 modes.current(0)
 check_input = IntVar()
-c = Checkbutton(root, text = "Allow SAVING Query Image/Video in DB", variable=check_input,onvalue=1, offvalue=0)
-
+c = Checkbutton(root, text="Allow SAVING Query Image/Video in DB", variable=check_input, onvalue=1, offvalue=0)
 
 Next = Button(root, text="NEXT",
               command=lambda: [root.withdraw(), Next_Window(modes.get(), check_input.get())])
@@ -270,7 +295,7 @@ def Next_Window(mode, save_flag):
     if "CBVR" in mode or "Video" in mode:
         Video_InputWindow(mode, save_flag)
     elif "Layout" in mode:
-        Layout_InputWindow()
+        Layout_InputWindow(mode)
     else:
         Image_InputWindow(mode, save_flag)
 
