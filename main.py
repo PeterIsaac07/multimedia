@@ -198,6 +198,9 @@ def compare_grid_hist(img):
             result.append(retrieve_image[i][0])
     return result
 
+
+
+#CALL TO COMPARE WITH GRID MEAN
 def compare_grid_mean(img):
     test = get_mean_grid(img)
     retrieve_image = retrieve_images()

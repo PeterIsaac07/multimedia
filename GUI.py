@@ -127,9 +127,9 @@ def Video_InputWindow(mode, s_flag):
     # Call l function beta3et l video retrieval
     output_list = algo.compare_video(input_file.name)
 
-    if s_flag:
-        algo.saving_video(input_file.name)
-        Alert_Message("___Query Video SAVED in DB___\n", None)
+    #if s_flag:
+    algo.saving_video(input_file.name)
+    Alert_Message("___Query Video SAVED in DB___\n", None)
 
     # call ll output
     Output(output_list)
@@ -160,10 +160,9 @@ def Image_InputWindow(mode, s_flag):
         out_list = algo.compare_img_mean(input_file.name)
 
     print(s_flag)
-    if s_flag == 1:
-        print("in")
-        algo.saving_image(input_file.name)
-        Alert_Message("___Query Image SAVED in DB___\n", None)
+    #if s_flag == 1:
+    algo.saving_image(input_file.name)
+    Alert_Message("___Query Image SAVED in DB___\n", None)
 
     Output(out_list)
 
