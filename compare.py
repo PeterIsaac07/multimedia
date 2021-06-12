@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+from math import ceil
 
 def get_hist(img):
     hist_b = cv2.calcHist([img],[0],None,[256],[0,256])
