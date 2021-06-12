@@ -9,7 +9,8 @@ import matplotlib.pyplot as plt
 from video_player import Player
 from PIL import ImageTk, Image
 import main as algo
-
+import PIL
+import cv2
 UNFILLED = "white"
 
 
@@ -158,7 +159,9 @@ def Image_InputWindow(mode, s_flag):
         '''
         out_list = algo.compare_img_mean(input_file.name)
 
-    if s_flag:
+    print(s_flag)
+    if s_flag == 1:
+        print("in")
         algo.saving_image(input_file.name)
         Alert_Message("___Query Image SAVED in DB___\n", None)
 
@@ -231,10 +234,9 @@ def Layout_InputWindow():
         im = im.astype(np.uint8)
         im = Image.fromarray(im.reshape((6, 6, 3)))
         im = im.resize((600, 600))
+        im.save('layout.png')
+
         im = np.array(im)
-        # im = im.resize(512,512)
-        # plt.imshow(im)
-        # plt.show()
 
         out_list = algo.compare_grid_hist(im)
         # call the output
@@ -264,13 +266,14 @@ c.grid(row=3, column=0, columnspan=2, padx=10, sticky=W, pady=10)
 Next.grid(row=4, columnspan=3, pady=15)
 
 
-def Next_Window(mode, save_flage):
+def Next_Window(mode, save_flag):
+    print(save_flag)
     if "CBVR" in mode or "Video" in mode:
-        Video_InputWindow(mode, save_flage)
+        Video_InputWindow(mode, save_flag)
     elif "Layout" in mode:
         Layout_InputWindow()
     else:
-        Image_InputWindow(mode, save_flage)
+        Image_InputWindow(mode, save_flag)
 
 
 root.mainloop()
