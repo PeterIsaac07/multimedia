@@ -31,7 +31,7 @@ def compare_mean(mean1,mean2,threshold = 1.2,factor = 1):
         return False
 
 def grid_slice_img(img):
-    
+    img = cv2.resize(img(600,600))
     slices = []
     x_grid = ceil(img.shape[0]/6)
     y_grid = ceil(img.shape[1]/6)
