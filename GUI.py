@@ -13,6 +13,17 @@ import main as algo
 UNFILLED = "white"
 
 
+def Alert_Message(M, parent_root):
+    error = Tk()
+    error.title("ALERT")
+    message = Label(error, text=M)
+    message.grid(row=0, columnspan=3, pady=30, padx=40)
+    if parent_root:
+        error.protocol("WM_DELETE_WINDOW", lambda: [error.destroy(), parent_root.deiconify()])
+    else:
+        error.protocol("WM_DELETE_WINDOW", lambda: [error.destroy()])
+
+
 def closest_colour_name(requested_colour):
     min_colours = {}
     for key, name in col.CSS3_HEX_TO_NAMES.items():
@@ -98,9 +109,10 @@ class GridApp:
             self.w.itemconfig(cell, fill=UNFILLED)
 
 
-def Video_InputWindow(mode):
+def Video_InputWindow(mode, s_flag):
     input_file = filedialog.askopenfile(title='Please Select Video',
                                         filetypes=[("Videos", ".mp4")])
+    print(s_flag)
 
     if input_file is None:
         root.deiconify()
@@ -108,26 +120,32 @@ def Video_InputWindow(mode):
 
     if "Add" in mode:
         algo.saving_video(input_file.name)
-        root.deiconify()
+        Alert_Message("___Video Added SUCCESSFULLY in DB___\n", root)
         return
 
     # Call l function beta3et l video retrieval
     output_list = algo.compare_video(input_file.name)
 
+    if s_flag:
+        algo.saving_video(input_file.name)
+        Alert_Message("___Query Video SAVED in DB___\n", None)
+
     # call ll output
     Output(output_list)
 
 
-def Image_InputWindow(mode):
+def Image_InputWindow(mode, s_flag):
     input_file = filedialog.askopenfile(title='Please Select Image',
                                         filetypes=[("Image", ".jpg"), ("Image", ".png"), ("Image", ".jpeg")])
+
+
 
     if input_file is None:
         root.deiconify()
         return
     if "Add" in mode:
         algo.saving_image(input_file.name)
-        root.deiconify()
+        Alert_Message("___Image Added SUCCESSFULLY in DB___\n", root)
         return
     elif "Histogram" in mode:
         '''
@@ -139,7 +157,10 @@ def Image_InputWindow(mode):
         call the image retrieval function based on Mean color
         '''
         out_list = algo.compare_img_mean(input_file.name)
-        pass
+
+    if s_flag:
+        algo.saving_image(input_file.name)
+        Alert_Message("___Query Image SAVED in DB___\n", None)
 
     Output(out_list)
 
@@ -229,24 +250,27 @@ wlc = Label(root, text="______WELCOME______\n . . . . .")
 entry_mode = Label(root, text="Content Base Retrieval Mode :")
 modes = Combobox(root, justify='center', value=types, state='readonly')
 modes.current(0)
+check_input = IntVar()
+c = Checkbutton(root, text = "Allow SAVING Query Image/Video in DB", variable=check_input)
+
 
 Next = Button(root, text="NEXT",
-              command=lambda: [root.withdraw(), Next_Window(modes.get())])
+              command=lambda: [root.withdraw(), Next_Window(modes.get(), check_input.get())])
 wlc.grid(row=0, columnspan=3, pady=15)
 
 entry_mode.grid(row=1, padx=10, sticky=W, pady=10)
 modes.grid(row=1, column=1, columnspan=2, padx=10, sticky=W, pady=10)
-
+c.grid(row=3, column=0, columnspan=2, padx=10, sticky=W, pady=10)
 Next.grid(row=4, columnspan=3, pady=15)
 
 
-def Next_Window(mode):
+def Next_Window(mode, save_flage):
     if "CBVR" in mode or "Video" in mode:
-        Video_InputWindow(mode)
+        Video_InputWindow(mode, save_flage)
     elif "Layout" in mode:
         Layout_InputWindow()
     else:
-        Image_InputWindow(mode)
+        Image_InputWindow(mode, save_flage)
 
 
 root.mainloop()
