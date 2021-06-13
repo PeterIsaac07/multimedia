@@ -1,6 +1,7 @@
 from tkinter import *
-from tkinter import filedialog
+from tkinter import filedialog, ttk
 from tkinter.ttk import Combobox
+from tkinter.ttk import *
 from tkinter import colorchooser
 import webcolors as col
 import math as m
@@ -264,6 +265,8 @@ def Layout_InputWindow(mode):
 
 root = Tk()
 root.title('MAIN MENU')
+root.geometry('500x300')
+
 types = ["CBVR",
          "CBIR using Mean Color",
          "CBIR using Histogram",
@@ -272,22 +275,28 @@ types = ["CBVR",
          "CBIR using Color Layout & Mean Color",
          "Add Image to DB",
          "Add Video to DB"]
+style = ttk.Style(root)
+
+style.theme_use('xpnative')
+
+style.configure("TLabel", background="white")
+
 
 wlc = Label(root, text="______WELCOME______\n . . . . .")
 entry_mode = Label(root, text="Content Base Retrieval Mode :")
-modes = Combobox(root, justify='center', value=types, state='readonly')
-modes.current(0)
+modes = Combobox(root, justify='center', value=types, state='readonly',width=40)
+modes.current(4)
 check_input = IntVar()
 c = Checkbutton(root, text="Allow SAVING Query Image/Video in DB", variable=check_input, onvalue=1, offvalue=0)
 
 Next = Button(root, text="NEXT",
               command=lambda: [root.withdraw(), Next_Window(modes.get(), check_input.get())])
-wlc.grid(row=0, columnspan=3, pady=15)
+wlc.grid(row=0,column=1, columnspan=3, pady=15)
 
 entry_mode.grid(row=1, padx=10, sticky=W, pady=10)
-modes.grid(row=1, column=1, columnspan=2, padx=10, sticky=W, pady=10)
-c.grid(row=3, column=0, columnspan=2, padx=10, sticky=W, pady=10)
-Next.grid(row=4, columnspan=3, pady=15)
+modes.grid(row=1, column=1,columnspan=10, padx=10, sticky=W, pady=10)
+c.grid(row=3, column=0,columnspan=2, padx=10, sticky=W, pady=10)
+Next.grid(row=4,column=1, columnspan=3, pady=15)
 
 
 def Next_Window(mode, save_flag):
