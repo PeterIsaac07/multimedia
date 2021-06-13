@@ -12,6 +12,7 @@ from PIL import ImageTk, Image
 import main as algo
 import PIL
 import cv2
+from PIL import ImageTk,Image
 
 UNFILLED = "white"
 
@@ -280,7 +281,7 @@ style = ttk.Style(root)
 style.theme_use('xpnative')
 
 style.configure("TLabel", background="white")
-
+#root.configure(background='#cccaca')
 
 wlc = Label(root, text="______WELCOME______\n . . . . .")
 entry_mode = Label(root, text="Content Base Retrieval Mode :")
@@ -294,6 +295,7 @@ Next = Button(root, text="NEXT",
 wlc.grid(row=0,column=1, columnspan=3, pady=15)
 
 entry_mode.grid(row=1, padx=10, sticky=W, pady=10)
+
 modes.grid(row=1, column=1,columnspan=10, padx=10, sticky=W, pady=10)
 c.grid(row=3, column=0,columnspan=2, padx=10, sticky=W, pady=10)
 Next.grid(row=4,column=1, columnspan=3, pady=15)
