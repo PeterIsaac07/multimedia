@@ -12,7 +12,7 @@ from PIL import ImageTk, Image
 import main as algo
 import PIL
 import cv2
-from PIL import ImageTk,Image
+from PIL import ImageTk, Image
 
 UNFILLED = "white"
 
@@ -130,9 +130,9 @@ def Video_InputWindow(mode, s_flag):
     # Call l function beta3et l video retrieval
     output_list = algo.compare_video(input_file.name)
 
-    # if s_flag:
-    algo.saving_video(input_file.name)
-    Alert_Message("___Query Video SAVED in DB___\n", None)
+    if s_flag:
+        algo.saving_video(input_file.name)
+        Alert_Message("___Query Video SAVED in DB___\n", None)
 
     if len(output_list) == 0:
         Alert_Message("___NO Video close to the Query one found in DB___\n", root)
@@ -170,9 +170,9 @@ def Image_InputWindow(mode, s_flag):
         out_list = algo.compare_img_mean(input_file.name)
 
     print(s_flag)
-    # if s_flag == 1:
-    algo.saving_image(input_file.name)
-    Alert_Message("___Query Image SAVED in DB___\n", None)
+    if s_flag:
+        algo.saving_image(input_file.name)
+        Alert_Message("___Query Image SAVED in DB___\n", None)
 
     if len(out_list) == 0:
         Alert_Message("___NO Image close to the Query one found in DB___\n", root)
@@ -266,7 +266,20 @@ def Layout_InputWindow(mode):
 
 root = Tk()
 root.title('MAIN MENU')
-root.geometry('500x300')
+root.geometry('500x250')
+
+save_flag = False
+
+
+def var_True():
+    global save_flag
+    save_flag = True
+
+
+def var_False():
+    global save_flag
+    save_flag = False
+
 
 types = ["CBVR",
          "CBIR using Mean Color",
@@ -281,27 +294,27 @@ style = ttk.Style(root)
 style.theme_use('xpnative')
 
 style.configure("TLabel", background="white")
-#root.configure(background='#cccaca')
-
+# root.configure(background='#cccaca')
+v = 0
 wlc = Label(root, text="______WELCOME______\n . . . . .")
 entry_mode = Label(root, text="Content Base Retrieval Mode :")
-modes = Combobox(root, justify='center', value=types, state='readonly',width=40)
+modes = Combobox(root, justify='center', value=types, state='readonly', width=40)
 modes.current(4)
-check_input = IntVar()
-c = Checkbutton(root, text="Allow SAVING Query Image/Video in DB", variable=check_input, onvalue=1, offvalue=0)
-
+R1 = Radiobutton(root, text="Allow SAVING Query Image/Video in DB", variable=v, value=0, command=lambda: [var_True()])
+R2 = Radiobutton(root, text="DON'T Save Query Image/Video in DB", variable=v, value=1, command=lambda: [var_False()])
+R1.invoke()
 Next = Button(root, text="NEXT",
-              command=lambda: [root.withdraw(), Next_Window(modes.get(), check_input.get())])
-wlc.grid(row=0,column=1, columnspan=3, pady=15)
+              command=lambda: [root.withdraw(), Next_Window(modes.get())])
+wlc.grid(row=0, column=1, columnspan=3, pady=15)
 
-entry_mode.grid(row=1, padx=10, sticky=W, pady=10)
+entry_mode.grid(row=1, padx=10, sticky=W, pady=20)
+modes.grid(row=1, column=1, columnspan=10, padx=20, sticky=W, pady=10)
+R1.grid(row=3, column=0, columnspan=2, padx=10, sticky=W, pady=0)
+R2.grid(row=4, column=0, columnspan=2, padx=10, sticky=W, pady=0)
+Next.grid(row=5, column=1, columnspan=3, pady=15)
 
-modes.grid(row=1, column=1,columnspan=10, padx=10, sticky=W, pady=10)
-c.grid(row=3, column=0,columnspan=2, padx=10, sticky=W, pady=10)
-Next.grid(row=4,column=1, columnspan=3, pady=15)
 
-
-def Next_Window(mode, save_flag):
+def Next_Window(mode):
     print(save_flag)
     if "CBVR" in mode or "Video" in mode:
         Video_InputWindow(mode, save_flag)
