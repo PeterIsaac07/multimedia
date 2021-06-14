@@ -1,5 +1,6 @@
-import numpy as np
 import cv2
+import numpy as np
+from math import ceil
 
 def get_hist(img):
     hist_b = cv2.calcHist([img],[0],None,[256],[0,256])
@@ -29,8 +30,8 @@ def compare_mean(mean1,mean2,threshold = 1.2,factor = 1):
     else:
         return False
 
+
 def grid_slice_img(img):
-    img = cv2.resize(img(600,600))
     slices = []
     x_grid = ceil(img.shape[0]/6)
     y_grid = ceil(img.shape[1]/6)
@@ -78,7 +79,9 @@ def compare_hist_grid(hists1,hists2):
         else:
             unmatching +=1
     score = int(matching/(matching+unmatching)*100)
+    print(score)
     if score >= 70:
         return True
     else:
         return False
+
